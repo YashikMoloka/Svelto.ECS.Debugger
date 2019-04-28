@@ -1,4 +1,6 @@
 # Svelto.ECS.Debugger
+## Alarm!
+WIP. This project have bugs, Bugs and BUGS.
 ### Install
 
 - Copy Svelto.ECS.Debugger to your project folder.

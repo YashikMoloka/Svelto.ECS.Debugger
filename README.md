@@ -11,3 +11,6 @@ WIP. This project have bugs, Bugs and BUGS.
 
 ### Using
 Just open debugger in top menu Window/Analysis/Svelto.ECS Debugger
+
+### Known issues
+- In Entity List you can see magic zero-id element. Ignore it.

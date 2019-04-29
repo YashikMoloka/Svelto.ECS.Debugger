@@ -1,11 +1,12 @@
 {
-    "name": "Svelto.ECS.Debugger",
+    "name": "Svelto.ECS.Debugger.Editor",
     "references": [
-        "Svelto.ECS",
-        "Svelto.Common"
+        "Svelto.ECS.Debugger"
     ],
     "optionalUnityReferences": [],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

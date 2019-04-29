@@ -56,26 +56,24 @@ namespace Svelto.ECS.Debugger.Editor
         private static SveltoECSEntityDebugger Instance { get; set; }
         
         private const float kLineHeight = 18f;
-        const float kChunkInfoButtonWidth = 60f;
         private readonly RepaintLimiter repaintLimiter = new RepaintLimiter();
 
         private EntitySelectionProxy selectionProxy;
+        public DebugTree Data;
         
-        private List<TreeViewState> groupListStates = new List<TreeViewState>();
-        private List<string> groupListStateNames = new List<string>();
         public GroupListView groupListView;
-        
-        [SerializeField] private TreeViewState entityListState = new TreeViewState();
         private EntityListView entityListView;
-        internal WorldPopup m_WorldPopup;
-        public uint? GroupSelectionId { get; set; }
+        public WorldPopup m_WorldPopup;
 
+        public DebugRoot RootSelection { get; set; }
+        public uint? EntitySelectionId;
+        public uint? GroupSelectionId { get; set; }
+        
         public DebugGroup GetSelectionGroup() =>
             RootSelection.DebugGroups.FirstOrDefault(f => f.Id == GroupSelectionId);
         public DebugEntity GetSelectionEntity() =>
-            RootSelection.DebugGroups.FirstOrDefault(f => f.DebugEntities.Any(a => a.Id == EntitySelection))?.DebugEntities.FirstOrDefault(f => f.Id == EntitySelection);
-        
-        public DebugRoot RootSelection { get; set; }
+            RootSelection.DebugGroups.FirstOrDefault(f => f.DebugEntities.Any(a => a.Id == EntitySelectionId))?.DebugEntities.FirstOrDefault(f => f.Id == EntitySelectionId);
+
 
         public void SetGroupSelection(uint? manager)
         {
@@ -84,10 +82,9 @@ namespace Svelto.ECS.Debugger.Editor
             ReloadAll();
         }
         
-        public uint? EntitySelection;
-        internal void SetEntitySelection(uint? entityId)
+        public void SetEntitySelection(uint? entityId)
         {
-            EntitySelection = entityId;
+            EntitySelectionId = entityId;
             var entity = GetSelectionEntity();
             if (entity == null)
             {
@@ -106,9 +103,11 @@ namespace Svelto.ECS.Debugger.Editor
             if (RootSelection != selection)
             {
                 RootSelection = selection;
+                groupListView.SetSelection(new List<int>());
                 ReloadAll();
             }
         }
+        
         private void CreateEntityListView()
         {
             entityListView = EntityListView.CreateGroupListView(() => GetSelectionGroup(), m => SetEntitySelection(m));
@@ -126,22 +125,15 @@ namespace Svelto.ECS.Debugger.Editor
                 () => Data?.DebugRoots
                 );
         }
-        public DebugTree Data;
+        
         private void OnEnable()
         {
             Instance = this;
             UpdateAll();
             UpdateData();
-
+            Debugger.OnAddEnginesRoot += OnAddEnginesRoot;
             EditorApplication.playModeStateChanged += OnPlayModeStateChange;
         }
-
-        private void CreateEntitySelectionProxy()
-        {
-            selectionProxy = ScriptableObject.CreateInstance<EntitySelectionProxy>();
-            selectionProxy.hideFlags = HideFlags.HideAndDontSave;
-        }
-
         private void OnDisable()
         {
             if (Instance == this)
@@ -149,15 +141,30 @@ namespace Svelto.ECS.Debugger.Editor
             if (selectionProxy)
                 DestroyImmediate(selectionProxy);
 
+            Debugger.OnAddEnginesRoot -= OnAddEnginesRoot;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChange;
         }
-
         private void OnPlayModeStateChange(PlayModeStateChange change)
         {
             if (change == PlayModeStateChange.ExitingPlayMode)
                 ClearAll();
             if (change == PlayModeStateChange.ExitingPlayMode && Selection.activeObject == selectionProxy)
                 Selection.activeObject = null;
+        }
+        
+        private void OnAddEnginesRoot(DebugRoot root)
+        {
+            UpdateData();
+            if (RootSelection == null || Data?.DebugRoots.All(r => r != RootSelection) == true)
+            {
+               SetRootSelection(root);
+            }
+        }
+
+        private void CreateEntitySelectionProxy()
+        {
+            selectionProxy = ScriptableObject.CreateInstance<EntitySelectionProxy>();
+            selectionProxy.hideFlags = HideFlags.HideAndDontSave;
         }
         private void Update()
         {
@@ -212,10 +219,13 @@ namespace Svelto.ECS.Debugger.Editor
             groupListView.Reload();
             entityListView.Reload();
         }
+        
+        //OnGUI
 
         private void ShowWorldPopup()
         {
-            m_WorldPopup.OnGui();
+            if (Application.isPlaying)
+                m_WorldPopup.OnGui();
         }
 
         private void GroupList()

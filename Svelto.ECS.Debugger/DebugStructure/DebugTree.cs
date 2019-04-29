@@ -14,9 +14,17 @@ namespace Svelto.ECS.Debugger.DebugStructure
         
         public delegate void UpdateHandler();
         public event UpdateHandler OnUpdate;
-        public void AddRootToTree(EnginesRoot root)
+        
+        public DebugRoot AddRootToTree(EnginesRoot root)
         {
-            DebugRoots.Add(new DebugRoot(root));
+            var debugRoot = new DebugRoot(root);
+            DebugRoots.Add(debugRoot);
+            return debugRoot;
+        }
+        
+        public void RemoveRootFromTree(EnginesRoot root)
+        {
+            DebugRoots.RemoveAll(debug => debug.EnginesRoot == root);
         }
 
         public void Update()
@@ -74,7 +82,6 @@ namespace Svelto.ECS.Debugger.DebugStructure
                     var key = current.Key;
                     var val = current.Value;
                     DebugGroups.Add(new DebugGroup(key, val, this));
-                    
                 }
             }
         }

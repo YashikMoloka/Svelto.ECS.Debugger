@@ -9,23 +9,45 @@ namespace Svelto.ECS.Debugger
 {
     public class Debugger : MonoBehaviour
     {
-        public static Debugger Instance;
+        private static object _lock = new object();
+        private static Debugger _instance;
+        public static Debugger Instance
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    if (_instance == null)
+                    {
+                        // Search for existing instance.
+                        _instance = FindObjectOfType<Debugger>();
+ 
+                        // Create new instance if one doesn't already exist.
+                        if (_instance == null)
+                        {
+                            // Need to create a new GameObject to attach the singleton to.
+                            var singletonObject = new GameObject();
+                            _instance = singletonObject.AddComponent<Debugger>();
+                            singletonObject.name = nameof(Debugger) + " (Singleton)";
+ 
+                            // Make instance persistent.
+                            DontDestroyOnLoad(singletonObject);
+                        }
+                    }
+ 
+                    return _instance;
+                }
+            }
+        }
         private static Dictionary<uint, string> GroupDebugNames = new Dictionary<uint, string>();
         private static Dictionary<EnginesRoot, string> EnginesRootDebugNames = new Dictionary<EnginesRoot, string>();
         [NonSerialized]
         public DebugTree DebugInfo = new DebugTree();
+
+        public delegate void OnAddRoot(DebugRoot debugRoot);
+
+        public static event OnAddRoot OnAddEnginesRoot;
         
-        private void Awake()
-        {
-            if (Instance != null)
-            {
-                Destroy(this);
-                return;
-            }
-
-            Instance = this;
-        }
-
         private void Update()
         {
             DebugInfo.Update();
@@ -37,7 +59,13 @@ namespace Svelto.ECS.Debugger
             {
                 EnginesRootDebugNames[root] = named.Name;
             }
-            DebugInfo.AddRootToTree(root);
+            var debugRoot = DebugInfo.AddRootToTree(root);
+            OnAddEnginesRoot?.Invoke(debugRoot);
+        }
+        
+        public void RemoveEnginesRoot(EnginesRoot root)
+        {
+            DebugInfo.RemoveRootFromTree(root);
         }
 
         public static void RegisterNameGroup(uint id, string name)

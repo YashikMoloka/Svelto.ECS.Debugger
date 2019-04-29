@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Svelto.Svelto.ECS.Debugger.Editor.EntityInspector;
@@ -47,7 +48,15 @@ namespace Svelto.ECS.Debugger.Editor.EntityInspector
             var debugStructs = container.DebugStructs.Select(s => s.Value);
             
             GUI.enabled = true;
-            var text = JsonConvert.SerializeObject(debugStructs, Formatting.Indented, settings);
+            var text = string.Empty;
+            try
+            {
+                text = JsonConvert.SerializeObject(debugStructs, Formatting.Indented, settings);
+            }
+            catch (Exception e)
+            {
+                text = "Error in serialization to JSON. Maybe list of entity do not update or this is bug.";
+            }
             EditorGUILayout.TextArea(text);
 
             repaintLimiter.RecordRepaint();

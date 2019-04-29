@@ -8,5 +8,9 @@ namespace Svelto.ECS.Debugger
         {
             Debugger.Instance.AddEnginesRoot(root);
         }
+        public static void DetachDebugger(this EnginesRoot root)
+        {
+            Debugger.Instance.RemoveEnginesRoot(root);
+        }
     }
 }

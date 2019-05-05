@@ -115,10 +115,10 @@ namespace Svelto.ECS.Debugger.DebugStructure
                 var valuesInfoField = fields.First(s => s.Name == "_valuesInfo");
                 var values = (Array) valuesField.GetValue(valTypeSafe);
                 var keys = (Array) valuesInfoField.GetValue(valTypeSafe);
-                
+                var count = valTypeSafe.Count;
                 var nodeKeyField = valuesInfoField.FieldType.GetElementType().GetAllFields().First(f => f.Name == "key");
                             
-                for (int i = 0; i < values.Length; i++)
+                for (int i = 0; i < count; i++)
                 {
                     var key = (uint)nodeKeyField.GetValue(keys.GetValue(i));
                     var entity = GetOrAddEntity(key);

@@ -1,9 +1,10 @@
 {
     "name": "Svelto.ECS.Debugger.Editor",
+    "rootNamespace": "",
     "references": [
-        "Svelto.ECS.Debugger"
+        "Svelto.ECS.Debugger",
+        "Svelto.ECS"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
@@ -13,5 +14,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": []
+    "versionDefines": [],
+    "noEngineReferences": false
 }

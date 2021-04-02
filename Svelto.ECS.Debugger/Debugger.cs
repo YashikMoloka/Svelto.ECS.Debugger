@@ -55,10 +55,10 @@ namespace Svelto.ECS.Debugger
 
         public void AddEnginesRoot(EnginesRoot root)
         {
-            if (root is EnginesRootNamed named)
-            {
-                EnginesRootDebugNames[root] = named.Name;
-            }
+            // if (root is EnginesRootNamed named)
+            // {
+            //     EnginesRootDebugNames[root] = named.Name;
+            // }
             var debugRoot = DebugInfo.AddRootToTree(root);
             OnAddEnginesRoot?.Invoke(debugRoot);
         }
